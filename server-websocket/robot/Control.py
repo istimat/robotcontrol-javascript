@@ -29,8 +29,8 @@ class Control:
             print("Serial port not found, using dev mode by printing output!")
             self.ser = None
 
-    def sendToArduino(self, sendStr, ser):
-        ser.write(sendStr.encode('utf-8'))
+    def sendToArduino(self, sendStr):
+        self.ser.write(sendStr.encode('utf-8'))
 
     def sign(self, value):
         if value < 0:
@@ -51,13 +51,27 @@ class Control:
                 time.sleep(0.000001)
                 pass
 
-            if True:        
+            if  inp != last_command:        
                 if inp[0] == "left": # left stick
                     axis = inp[1] #x
                     self.direction = self.sign(axis)
                     self.speed = abs(float(axis))
 
-                if self.ser == None and inp != last_command:
-                    print(inp)
-                    last_command = inp
-                    #print(inp)
+                if self.ser == None:
+                    print(self.limit_input(-1,1,(inp[1],inp[2])))
+                
+                last_command = inp
+
+    def limit_input(self, min: float, max: float, input: tuple):
+        x, y = input
+        if x > 1:
+            x = 1
+        if x < -1:
+            x = -1
+        
+        if y > 1:
+            y = 1
+        if y < -1:
+            y = -1
+            
+        return (x,y)
