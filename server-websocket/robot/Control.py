@@ -17,7 +17,7 @@ class Control:
         self.ser = None
 
     def start(self):
-        self.p = Process(target=self.run, args=(self.q))
+        self.p = Process(target=self.run, args=((self.q),))
         self.p.start()
 
     def connect(self):
@@ -32,7 +32,7 @@ class Control:
     def sendToArduino(self, sendStr, ser):
         ser.write(sendStr.encode('utf-8'))
 
-    def sign(value):
+    def sign(self, value):
         if value < 0:
             return -1
         if value == 0:
@@ -40,13 +40,13 @@ class Control:
         if value > 0:
             return 1
 
-    def run(self):
+    def run(self, queue):
         inp = (0, 0, 0)
+        last_command = (0, 0, 0)
         self.connect()
         while True:
             try:
-                inp = self.q.get_nowait()
-                print("TRY WORKED")
+                inp = queue.get_nowait()
             except:
                 time.sleep(0.000001)
                 pass
@@ -56,8 +56,8 @@ class Control:
                     axis = inp[1] #x
                     self.direction = self.sign(axis)
                     self.speed = abs(float(axis))
-                    print(inp)
 
-                if self.ser == None:
-                    pass
+                if self.ser == None and inp != last_command:
+                    print(inp)
+                    last_command = inp
                     #print(inp)

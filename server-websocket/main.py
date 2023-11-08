@@ -8,18 +8,9 @@ from flask_cors import CORS
 import math
 from multiprocessing import Process, Queue
 
-_debug = False
-
-
-# TODO: axis-mapping should be OOP and automatic!
-
-
 from robot.Control import *
-control = Control(Queue(), comPort="COM100", baudRate="9600", verbose=False)
-control.start()
 
-
-
+_debug = False
 
 
 app = Flask(__name__)
@@ -60,5 +51,9 @@ def control(message):
         if _debug: print ("[Server] B")
 
 if __name__ == "__main__":
+    
 
-    socketio.run(app, host="0.0.0.0", debug=True, use_reloader=False)
+    control = Control(Queue(), comPort="COM100", baudRate="9600", verbose=False)
+    control.start()
+    
+    socketio.run(app, host="0.0.0.0",port=5001, debug=True, use_reloader=False)
