@@ -42,25 +42,28 @@ class Control:
 
     def run(self, queue):
         inp = (0, 0, 0)
-        last_command = (0, 0, 0)
+        last_left = (0, 0)
+        last_right = (0, 0)
+        last_message = ((0, 0), (0, 0))
         self.connect()
         while True:
             try:
                 inp = queue.get_nowait()
             except:
-                time.sleep(0.000001)
+                time.sleep(0.0001)
                 pass
 
-            if  inp != last_command:        
-                if inp[0] == "left": # left stick
-                    axis = inp[1] #x
-                    self.direction = self.sign(axis)
-                    self.speed = abs(float(axis))
+            if inp[0] == "left" and inp != last_left: # left stick
+                last_left = (inp[1], inp[2])
+            
+            if inp[0] == "right" and inp != last_right: # right stick
+                last_right = (inp[1], inp[2])
+            
 
-                if self.ser == None:
-                    print(self.limit_input(-1,1,(inp[1],inp[2])))
-                
-                last_command = inp
+            message = (self.limit_input(-1,1,(last_left[0],last_left[1])), self.limit_input(-1,1,(last_right[0],last_right[1])))    
+
+            if message != last_message and self.ser == None:
+                print(message)
 
     def limit_input(self, min: float, max: float, input: tuple):
         x, y = input
